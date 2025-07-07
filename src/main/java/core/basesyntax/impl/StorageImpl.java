@@ -38,7 +38,7 @@ public class StorageImpl<K, V> implements Storage<K, V> {
                 return (V) values[i];
             }
         }
-        
+
         return null;
     }
 
@@ -61,7 +61,9 @@ public class StorageImpl<K, V> implements Storage<K, V> {
             values[size] = value;
             size++;
         } else {
-            throw new IllegalStateException("Storage is full. Maximum allowed size: " + MAX_STORAGE_ITEMS);
+            throw new IllegalStateException("Storage is full. Maximum allowed size: "
+                    + MAX_STORAGE_ITEMS
+            );
         }
     }
 }
