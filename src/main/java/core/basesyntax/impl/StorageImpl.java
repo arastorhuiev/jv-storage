@@ -61,7 +61,7 @@ public class StorageImpl<K, V> implements Storage<K, V> {
             values[size] = value;
             size++;
         } else {
-            throw new IllegalStateException("Storage is full. Maximum allowed length: " + MAX_STORAGE_ITEMS);
+            throw new IllegalStateException("Storage is full. Maximum allowed size: " + MAX_STORAGE_ITEMS);
         }
     }
 }
