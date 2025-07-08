@@ -5,36 +5,34 @@ import core.basesyntax.Storage;
 public class StorageImpl<K, V> implements Storage<K, V> {
     private static final int MAX_STORAGE_ITEMS = 10;
 
-    private final Object[] keys;
-    private final Object[] values;
+    private final K[] keys;
+    private final V[] values;
     private int size;
 
+    @SuppressWarnings("unchecked")
     public StorageImpl() {
-        this.keys = new Object[MAX_STORAGE_ITEMS];
-        this.values = new Object[MAX_STORAGE_ITEMS];
-        this.size = 0;
+        this.keys = (K[]) new Object[MAX_STORAGE_ITEMS];
+        this.values = (V[]) new Object[MAX_STORAGE_ITEMS];
     }
 
     @Override
     public void put(K key, V value) {
         for (int i = 0; i < size; i++) {
-            boolean isKeyNull = this.isKeyNull(key, i);
-            boolean isKeyAllowable = this.isAllowableKey(key, i);
-            if (isKeyNull || isKeyAllowable) {
+            boolean isKeyValid = this.isKeyValid(key, i);
+            if (isKeyValid) {
                 values[i] = value;
                 return;
             }
         }
 
-        this.checkStorageHealth(key, value);
+        this.addValue(key, value);
     }
 
     @Override
     public V get(K key) {
         for (int i = 0; i < this.size; i++) {
-            boolean isKeyNull = this.isKeyNull(key, i);
-            boolean isKeyAllowable = this.isAllowableKey(key, i);
-            if (isKeyNull || isKeyAllowable) {
+            boolean isKeyValid = this.isKeyValid(key, i);
+            if (isKeyValid) {
                 return (V) values[i];
             }
         }
@@ -47,6 +45,12 @@ public class StorageImpl<K, V> implements Storage<K, V> {
         return this.size;
     }
 
+    private boolean isKeyValid(K key, int index) {
+        boolean isKeyNull = this.isKeyNull(key, index);
+        boolean isKeyAllowable = this.isAllowableKey(key, index);
+        return isKeyNull || isKeyAllowable;
+    }
+
     private boolean isKeyNull(K key, int index) {
         return this.keys[index] == null && key == null;
     }
@@ -55,15 +59,16 @@ public class StorageImpl<K, V> implements Storage<K, V> {
         return this.keys[index] != null && this.keys[index].equals(key);
     }
 
-    private void checkStorageHealth(K key, V value) {
-        if (this.size < MAX_STORAGE_ITEMS) {
-            keys[size] = key;
-            values[size] = value;
-            size++;
-        } else {
+    private void addValue(K key, V value) {
+        boolean isStorageFull = this.size >= MAX_STORAGE_ITEMS;
+        if (isStorageFull) {
             throw new IllegalStateException("Storage is full. Maximum allowed size: "
                     + MAX_STORAGE_ITEMS
             );
         }
+
+        keys[size] = key;
+        values[size] = value;
+        size++;
     }
 }
